@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, Push, and Deploy to Minikube
 
 # Trigger the workflow on every push to the main branch
 on:
@@ -7,8 +7,8 @@ on:
       - main
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Image
+  build-push-deploy:
+    name: Build, Push, and Deploy to Minikube
     runs-on: ubuntu-latest
 
     steps:
@@ -32,3 +32,31 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push shakeeb2001/my_git_hub_app:latest
+
+      # Step 5: Set up kubectl to connect to Minikube
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      # Step 6: Configure Minikube (use your cluster's configuration)
+      - name: Configure kubectl for Minikube
+        run: |
+          mkdir -p $HOME/.kube
+          mkdir -p $HOME/.minikube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
+          echo "${{ secrets.MINIKUBE_CERT_CONTENT }}" > $HOME/.minikube/ca.crt
+          echo "${{ secrets.MINIKUBE_KEY_CONTENT }}" > $HOME/.minikube/client.key
+          echo "${{ secrets.MINIKUBE_CERT_CONTENT }}" > $HOME/.minikube/client.crt
+
+      # Step 7: Deploy to Minikube
+      - name: Deploy to Minikube
+        run: |
+          kubectl apply -f backend/k8s-deployment.yaml
+          kubectl apply -f backend/k8s-service.yaml
+
+      # Step 8: Verify Deployment
+      - name: Verify Deployment
+        run: |
+          kubectl get pods
+          kubectl get services
