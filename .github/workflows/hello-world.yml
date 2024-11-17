@@ -32,4 +32,22 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push shakeeb2001/my-app:latest
- 
+      # Step 5: Configure Kubernetes (K8s) context
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.25.4'
+
+      # Step 6: Deploy to Kubernetes
+      - name: Deploy to Kubernetes
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f backend/deployment.yaml
+          kubectl apply -f backend/service.yaml
+
+      # Step 7: Verify deployment
+      - name: Verify Deployment
+        run: |
+          kubectl get pods
+          kubectl get services
