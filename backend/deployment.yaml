@@ -17,7 +17,7 @@ spec:
       containers:
       - name: my-app
         image: shakeeb2001/my-app:latest  # Ensure this is the correct image path
-        imagePullPolicy: Always           # Pull the latest image from the registry
+        imagePullPolicy: Always           # Always pull the latest image from the registry
         ports:
         - containerPort: 4000             # Port your app listens on inside the container
         env:
@@ -31,4 +31,4 @@ spec:
             memory: "256Mi"
             cpu: "250m"
       imagePullSecrets:                   # Reference Docker registry secret
-      - name: regcred
+      - name: regcred                     # Ensure this secret exists in the cluster
